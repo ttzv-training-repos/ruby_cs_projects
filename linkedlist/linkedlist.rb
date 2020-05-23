@@ -33,7 +33,9 @@ class LinkedList
   end
 
   def at(index)
-    node_at(index).value
+    node = node_at(index)
+    return nil if node.nil?
+    return node.value
   end
 
   def pop
@@ -46,29 +48,48 @@ class LinkedList
   end
 
   def contains?(value)
-    
+    current_node = @head
+    while not current_node.nil?
+      return true if current_node.value == value
+      current_node = current_node.next_node
+    end
+    return false
   end
 
   def find(value)
-    
+    index = 0
+    current_node = @head
+    while not current_node.nil?
+      return index if current_node.value == value
+      current_node = current_node.next_node
+      index += 1
+    end
+    return nil
   end
 
   def to_s
-    i = @length - 1
     string = ""
-    i.downto(0) do |j|
-      string += vis(node_at(j).value)
+    current_node = @head
+    while not current_node.nil?
+      string += vis(current_node.value)
+      current_node = current_node.next_node
     end
     string += "nil"
     string
   end
 
   def insert_at(value, index)
-    
+    prev_node = node_at(index-1)
+    old_node = prev_node.next_node
+    new_node = Node.new(value, old_node)
+    prev_node.next_node = new_node
   end
 
   def remove_at(index)
-    
+    prev_node = node_at(index-1)
+    return nil if prev_node.nil? 
+    following_node = prev_node.next_node.next_node
+    prev_node.next_node = following_node
   end
 
   private
@@ -79,46 +100,10 @@ class LinkedList
 
   def node_at(index)
     return @head if index == 0 
-    node = self.node_at(index-1).next_node
+    node = self.node_at(index-1)
+    return nil if node.nil?
+    node = node.next_node
   end
   
 end
 
-list = LinkedList.new
-
-list.append(5)
-p list.head.value, list.tail.value
-list.append(4)
-p list.head.value, list.tail.value
-list.append(3)
-p list.head.value, list.tail.value
-list.append(2)
-p list.head.value, list.tail.value
-
-puts "At: "
-p list.at(0)
-p list.at(1)
-p list.at(2)
-p list.at(3)
-
-
-puts "Length: "
-p list.length
-
-puts "String: "
-puts list
-
-puts "Tail equals last node:"
-puts list.tail.value == list.at(list.length-1)
-
-puts "Pops 2 times"
-puts list
-list.pop
-list.pop
-puts list
-puts "returns by square bracket: "
-puts list[0]
-
-puts "Prepends"
-list.prepend(10)
-puts list
