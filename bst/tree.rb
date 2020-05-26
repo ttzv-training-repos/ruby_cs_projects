@@ -82,6 +82,38 @@ class Tree
     level_order(queue[1..-1], &block)
   end
 
+  def level_order_iterative
+    queue=[@root]
+    until queue.empty?
+      first_node = queue[0]
+      queue.push(first_node.left_child) if not first_node.left_child.nil?
+      queue.push(first_node.right_child) if not first_node.right_child.nil?
+      yield(first_node) if block_given?
+      queue = queue[1..-1]
+    end
+  end
+
+  def inorder(current_node=@root)
+    return if current_node.nil?
+    puts current_node.data
+    preorder(current_node.left_child) 
+    preorder(current_node.right_child)
+  end
+
+  def preorder(current_node=@root)
+    return if current_node.nil?
+    preorder(current_node.left_child) 
+    puts current_node.data
+    preorder(current_node.right_child)
+  end
+
+  def postorder(current_node=@root)
+    return if current_node.nil?
+    preorder(current_node.left_child) 
+    preorder(current_node.right_child)
+    puts current_node.data
+  end
+
   private
   def build_tree(array)
     array[1..-1].each { |el| insert(el) }  #skips root, already inserted in initialize method

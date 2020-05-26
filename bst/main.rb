@@ -7,7 +7,12 @@ tree = Tree.new([2,3,1,5,8,3])
 
 puts tree.root
 
-tree.level_order {|el| puts el.data}
+#tree.level_order {|el| puts el.data}
 
+#tree.level_order_iterative {|el| puts el.data}
+
+tree.preorder
+tree.inorder
+tree.postorder
 #binding.pry
 
