@@ -4,7 +4,6 @@ class Tree
   attr_accessor :root
 
   def initialize(array)
-    @root = Node.new(array[0])
     build_tree(array)
   end
 
@@ -73,50 +72,96 @@ class Tree
     end
   end
 
-  def level_order(queue=[@root], &block)
+  def level_order(queue=[@root], array=[], &block)
     first_node = queue[0]
-    yield(first_node) if block_given?
+    block_given? ? yield(first_node) : array.push(first_node.data)
     return if queue.length == 1 and first_node.has_no_children?
     queue.push(first_node.left_child) if not first_node.left_child.nil?
     queue.push(first_node.right_child) if not first_node.right_child.nil?
-    level_order(queue[1..-1], &block)
+    level_order(queue[1..-1], array, &block)
+    array
   end
 
   def level_order_iterative
     queue=[@root]
+    array=[]
     until queue.empty?
       first_node = queue[0]
       queue.push(first_node.left_child) if not first_node.left_child.nil?
       queue.push(first_node.right_child) if not first_node.right_child.nil?
-      yield(first_node) if block_given?
+      block_given? ? yield(first_node) : array.push(first_node)
       queue = queue[1..-1]
+    end
+    array
+  end
+
+  def _inorder(current_node=@root, array=[], &block)
+    return if current_node.nil?
+    block_given? ? yield(current_node.data) : array.push(current_node.data)
+    _inorder(current_node.left_child, array, &block) 
+    _inorder(current_node.right_child, array, &block)
+    array
+  end
+
+  def _preorder(current_node=@root, array=[], &block)
+    return if current_node.nil?
+    _preorder(current_node.left_child, array, &block) 
+    block_given? ? yield(current_node.data) : array.push(current_node.data)
+    _preorder(current_node.right_child, array, &block)
+    array
+  end
+
+  def _postorder(current_node=@root, array=[], &block)
+    return if current_node.nil?
+    _postorder(current_node.left_child, array, &block) 
+    _postorder(current_node.right_child, array, &block)
+    block_given? ? yield(current_node.data) : array.push(current_node.data)
+    array
+  end
+
+  ["in", "pre", "post"].each do |method|
+    define_method "#{method}order" do |current_node=@root, array=[], &block|
+      return if current_node.nil?
+      (block_given? ? yield(current_node.data) : array.push(current_node.data)) if method == "pre"
+      send "#{method}order", current_node.left_child, array, &block
+      (block_given? ? yield(current_node.data) : array.push(current_node.data)) if method == "in"
+      send "#{method}order", current_node.right_child, array, &block
+      (block_given? ? yield(current_node.data) : array.push(current_node.data)) if method == "post"
+      array
     end
   end
 
-  def inorder(current_node=@root)
-    return if current_node.nil?
-    puts current_node.data
-    preorder(current_node.left_child) 
-    preorder(current_node.right_child)
+  def depth(node=@root)
+    return 0 if node.nil?
+    left_depth = depth(node.left_child)
+    right_depth = depth(node.right_child)
+    if left_depth > right_depth
+      left_depth + 1
+    else
+      right_depth + 1
+    end
   end
 
-  def preorder(current_node=@root)
-    return if current_node.nil?
-    preorder(current_node.left_child) 
-    puts current_node.data
-    preorder(current_node.right_child)
+  def balanced?(node=@root)
+    return 0 if node.nil?
+    left_depth = depth(node.left_child)
+    right_depth = depth(node.right_child)
+    depth_diff = (left_depth - right_depth).abs
+    depth_diff > 1 ? false : true
   end
 
-  def postorder(current_node=@root)
-    return if current_node.nil?
-    preorder(current_node.left_child) 
-    preorder(current_node.right_child)
-    puts current_node.data
+  def rebalance!
+    if not balanced?
+      build_tree(level_order)
+    else
+      puts "Tree is balanced, no need to rebalance"
+    end
   end
 
   private
   def build_tree(array)
-    array[1..-1].each { |el| insert(el) }  #skips root, already inserted in initialize method
+    @root = Node.new(array[0])
+    array[1..-1].each { |el| insert(el) }
   end
 
   def find_pre_or_suc_node(node)
