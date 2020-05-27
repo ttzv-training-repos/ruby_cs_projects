@@ -29,6 +29,7 @@ class Tree
     #if right child not empty set current node to right child
   end
 
+  #deletion doesn't work as intended yet
   def delete(value, current_node=@root, parent_node=nil)
     value.instance_of?(Node) ? node = value : node = Node.new(value)
     if node > current_node
@@ -38,7 +39,7 @@ class Tree
     else
       if current_node.has_no_children? 
         current_node.replace(nil)
-        parent_node.clear_ref_if_child(current_node)
+        parent_node.clear_ref_if_child(current_node) #clears reference to children in parent
       elsif current_node.has_only_right_child? 
         current_node.replace(current_node.right_child) 
       elsif current_node.has_only_left_child? 
